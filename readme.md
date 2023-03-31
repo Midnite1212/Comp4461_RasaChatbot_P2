@@ -1,174 +1,209 @@
 <img src="square-logo.svg" width=255 height=255 align="right">
 
-#  Rasa Programming Tutorial
+# Rasa Interface Tutorial
 
-This repository contains a collection of tutorials that will help you understand the Rasa framework. Basic concepts of Rasa (e.g., Intent, Entity, Response, Action, Slot, Form) will be explained in a series of examples. Several chatbot interfaces are also included in this repository. Note that all the demos here are built and tested with Rasa 3. 
+This repository contains tutorials on connecting `Rasa` to various user interfaces and some examples of UIs. Note that all the demos here are built and tested with Rasa 3.
 
+We assume you have `Rasa 3` installed and can run [Lab1](https://github.com/Dingdong-LIU/Lab1_Chatbot_Rasa). This tutorial will try to connect `Rasa` to some UI samples.
 
 This project is built upon the following resources:
+1. https://github.com/scalableminds/chatroom which provides a great Chatroom UI.
+2. https://github.com/RasaHQ/rasa-voice-interface which provided a voice interface.
+3. [Mozilla Deepspeech](https://github.com/mozilla/DeepSpeech/tree/r0.9) and [Coqua.ai's TTS](https://github.com/coqui-ai/TTS).
+4. Rasa [learning center](https://learning.rasa.com). 
 
-1. Rasa Forms course that's hosted on Rasa's [learning center](https://learning.rasa.com/).
-2. A conversational AI with Rasa: [Source Code](httpss://github.com/RasaHQ/conversational-ai-course-3.x)
+## Table of Content
+
+- [Rasa Interface Tutorial](#rasa-interface-tutorial)
+  - [Table of Content](#table-of-content)
+  - [Rasa's Architecture](#rasas-architecture)
+  - [Tutorial Content](#tutorial-content)
+  - [Install Dependencies](#install-dependencies)
+    - [Install Node.js \& npm](#install-nodejs--npm)
+    - [Install yarn](#install-yarn)
+  - [Run Tutorial](#run-tutorial)
+    - [Chatroom-source](#chatroom-source)
+    - [widget](#widget)
+    - [rasa-voice-agent](#rasa-voice-agent)
+  - [Known Issue](#known-issue)
 
 
-## Installation 
+## Rasa's Architecture
 
-To run all the examples here you'll need to install Rasa, preferably in a virtualenv in the root directory. We strongly recommend you create a virtual environment with <code>Anaconda/Miniconda</code>. If you haven't installed <code>Anaconda/Miniconda</code>, you can refer to their official documentation:
+In the previous Lab, we talked about two separate services:
+![Rasa_Architecture](figs/rasa-architecture-01.png)
+1. `Action server` that handles the custom actions.
+2. `Dialogue policies` and `NLU pipelines` that handle the machine learning pipelines and the conversational events.
 
-Link: [Anaconda Installation Guide](https://conda.io/projects/conda/en/latest/user-guide/install/index.html#)
+To put this into real-world usage, we need to attach more services:
+![Rasa_Architecture](figs/rasa-architecture-02.png)
+1. `Tracker Store` that can store all the conversations. When you're working on a local machine this may fit in memory, but in production, you may have thousands of users and will likely use a database for this.
+2. `Lock Store`. Rasa uses a ticket lock mechanism to ensure that incoming messages for a given conversation ID are processed in the right order and locks conversations while messages are actively processed. This means *multiple Rasa servers can be run in parallel as replicated services*, and clients do not necessarily need to address the same node when sending messages for a given conversation ID.
+3. `Filesystem` where you can store your training data as well as your trained models. This can be the disk on your local machine but it may also refer to disk space on a cloud resource.
 
+There's one extra thing that's missing in this diagram though, and that's how our users are going to connect to our assistant.
+![Rasa_Architecture](figs/rasa-architecture-03.png)
+So far, we've only been interacting with Rasa via the terminal. When you launch `rasa shell` you'll start a small server on your machine and your terminal will communicate with Rasa over HTTP under the hood. Being able to communicate over HTTP is great because it means that we can connect a website to it as well, but it's good to understand that this is one of the many channels that Rasa supports.
 
+![Rasa_Architecture](figs/rasa-architecture-04.png)
 
+We can connect our chatbot to other input/output channels by configuring `credientials.yml` file. That way, you can configure Rasa to communicate over slack, Facebook messenger, WhatsApp or any other supported channel.
 
-### Create a virtualenv via Conda
-```bash
-conda create -n rasa_env python=3.9
+> We will also use customized connectors to create voice agents
+
+## Tutorial Content
+
+We will introduce 3 UIs via different channels:
+1. Connect to **Chatroom** via default **REST** channel.
+2. Connect as **a website widget** via the default **Socket** channel.
+3. Create a **Voice agent** using a customized **Socket** channel
+
+For this tutorial, we will use the `02-forms-pizza-ordering-chatbot` from `Lab1` as the example chatbot.
+
+## Install Dependencies
+
+You will need `node.js` and `yarn` to run the tutorial. 
+
+> Note: You have to use `node@14` to run `UI/rasa-voice-interface`. 
+
+For Mac users, you can refer to the posts here:
+
+### Install Node.js & npm
+1. If you are using `Apple Silicon Mac`, you can follow the guide here: https://devzilla.io/using-nodejs-14-with-mac-silicon-m1
+2. If you are using `Intel Mac` or Unix-like OS, things are much simpler. 
+   1. Install `nvm` - please follow the official guide [here](https://github.com/nvm-sh/nvm#install--update-script). 
+   2. And use `nvm` to install `node.js` following [examples on GitHub](https://github.com/nvm-sh/nvm#install--update-script). We recommend installing version 14 via `nvm install 14`.
+3. If you are using a windows computer, you can download it from here: https://nodejs.org/en/blog/release/v14.17.3
+
+### Install yarn
+
 ```
-This will create a Conda virtual environment with <code>Python3.9</code>. Then you need to install <code>rasa</code> via <code>pip3</code>.
-
-### Activate virtual environment
-```bash
-conda activate rasa_env
-```
-### Install rasa 3
-```bash
-pip3 install rasa
-```
-Make sure that you installed <code>rasa 3.x.x</code>. For example, the above code installed <code>rasa 3.4.4</code> on my computer. You can verify that by 
-```bash
-pip show rasa
-```
-And you will find rasa version information in the outputs. Here are some sample outputs:
-```bash
-(rasa_env) ➜ pip show rasa          
-Name: rasa
-Version: 3.4.4
-...
-```
-
-Note: It is very important that you installed <code>rasa 3.x.x</code>. This tutorial is **NOT** tested with <code>rasa 2</code> (and probably **incompatible**). If you need to use <code>rasa 2</code>, you can refer to previous tutorial notes (See item 1 under [Known Issue](#known-issue)).
-
-## Basic Use of Rasa
-
-### 0. Initial Project
-It helps to verify the successful installation of `rasa` and helps you understand the basic structure of the Rasa project.
-
-Whenever you want to start a new project, you can run the following command line to initiate a new assistant:
-```bash
-python -m rasa init --init-dir ./chatbot/00-rasa-init
-```
-This will start a prompt that will generate a new assistant. You're able to indicate <u>*where you want the new project to be created*</u> and you're also able to train the new assistant after the files have been created.
-
-***Hint: We specified that the project should be created under `./chatbot/00-rasa-init` by appending `--init-dir` flag.***
-
-The assistant that you'll create is called "moodbot". It's a simple assistant that tries to cheer you up if you're sad. If you're happy the bot will just say "goodbye" and if you're sad the bot will try to show you a picture of a cute tiger.
-
-You can also refer to rasa's [learning center](https://learning.rasa.com/conversational-ai-with-rasa/creating-a-new-assistant/#code) website](https://learning.rasa.com/conversational-ai-with-rasa/creating-a-new-assistant/#code) for more detailed explanations. 
-
-## Tutorial on Rasa Functions
-
-### 1. Entities, Slots & Custom Actions
-
-It helps to understand custom actions and slots before we talk about forms. In this simple chatbot, we show how they work by identifying and keeping track of where a user lives. 
-
-The code can be found in the `./chatbot/01-custom-actions` folder.
-
-### 2. Form
-We created a pizza-ordering chatbot that collects information according to a question table. 
-
-The code can be found in the `./chatbot/02-forms-pizza-ordering-chatbot`.
-
-## Additional Examples
-You can refer to [Rasa's learning center](https://learning.rasa.com/) for more examples.
-
-
-## Web Interface
-
-Web-interface in this section is independent of `chatbot`. You can implement a chatbot first and then connect it to UI.
-> This is a preview of what a chatbot can look like with a UI. We will elaberate more about it on Lab 2. I'm releasing it as a preview version.
-### Install Packages
-You will need to install `node.js`, `nvm (optional)`, `yarn` before you can use this UI.
-* [Recommended for UNIX, macOS] Install `nvm` - please follow the official guide [here](https://github.com/nvm-sh/nvm#install--update-script). And use `nvm` to install `node.js` following [examples on GitHub](https://github.com/nvm-sh/nvm#install--update-script). We recommend installing the latest LTS version.
-```bash
-nvm install --lts
-```
-After it finishes,
-```bash
-npm install --global yarn
-```
-* [Alternative] Install `node.js` directly - please follow the [official guide here](https://nodejs.org/en/download/). After installation, run
-```bash
 npm install --global yarn
 ```
 
+## Run Tutorial
 
+You can refer to `README.md` files in each UI example for more detailed explanations. Here's a summary.
 
-### Chatroom
+I recommend first running `chatroom-source`, then trying `widget`, and finally, playing with `rasa-voice-interface`.
 
-The project `./UI/chatroom-source` provides a basic interface for interacting with bots on the webpage, which supports text and voice as input. Please refer to https://github.com/scalableminds/chatroom for more details.
-
-* In your Rasa bot setup, make sure to include the Rasa [REST channel](https://rasa.com/docs/rasa/user-guide/connectors/your-own-website/#rest-channels) in your `credentials.yml` file:
-```bash
+### Chatroom-source
+1. Modify `chatbot/02-forms-pizza-ordering-chatbot/credentials.yml` to enable `REST` API, i.e.,
+```yml
 rest:
-  # pass
+
 ```
 
-* Install the dependencies for the web application
+2. **Run Rasa chatbot**. Launch action server and rasa server in 2 separate terminals:
 ```bash
-cd UI/chatroom-source
-# install dependencies if you have not installed
-yarn install
-``` 
-
-* Usage - You need to open 3 terminal/shell windows:
-
-
-*Terminal-1*: For Rasa server. Depending on your setup you might need to add CORS headers, e.g. `--cors "*"`.
-
-```bash
-# change to chatbot directory (just an example)
-cd chatbot/02-forms-pizza-ordering-chatbot
-# Run Rasa server
-rasa run --credentials ./credentials.yml  --enable-api --auth-token XYZ123 --model ./models --endpoints ./endpoints.yml --cors "*"
-```
-
-*Terminal-2*: Run Rasa action server if you need customized actions
-
-```bash
-# change to chatbot directory (just an example)
-cd chatbot/02-forms-pizza-ordering-chatbot
-# Run Rasa action server
+# Change directory to `chatbot/02-forms-pizza-ordering-chatbot first`
+# You need to run `rasa train` first if you haven't train the rasa model
+rasa train
+# In the first terminal window 
 rasa run actions
+# In the second terminal window
+rasa run --enable-api -p 5005 --debug --cors "*"
 ```
 
-*Terminal 3*: For web application
-   
+3. **Start the UI**. Launch UI from the third terminal window 
+
+You can start the UI directly by:
 ```bash
-cd UI/chatroom-source
-# run the local host
+python -m http.server 8889
+```
+And then open `http://localhost:8889`
+> Note: You may come into `block by CORS policy error` when you are using newer version of `Google Chrome`. You can refer to this post to temporarily disable `Block insecure private network requests`: https://stackoverflow.com/questions/69542810/has-been-blocked-by-cors-policy-the-request-client-is-not-a-secure-context-and
+
+If you like to compile it yourself / do further development, you can run the following commands:
+```bash
+# Change directory to `UI/chatroom-source`
+# Skip this line if you already installed dependance for yarn
+yarn install 
+# Then Run
 yarn serve
 ```
-Open `http://localhost:8080` in your browser.
+And open the website as displayed in the terminal window.
 
-#### Readings
-You can find out more tutorials [here](https://rasa.com/docs/rasa/messaging-and-voice-channels/), including how to connect Rasa to:
-* Your Own Website
-* Facebook Messenger
-* Slack
-* Telegram
-* Twilio
-* ...
+### widget
+1. Modify `chatbot/02-forms-pizza-ordering-chatbot/credentials.yml` to enable `socketio` API, i.e.,
+```yml
+socketio:
+ user_message_evt: user_uttered
+ bot_message_evt: bot_uttered
+ session_persistence: false
+```
 
+2. **Run Rasa chatbot**. Launch action server and rasa server in 2 separate terminals:
+```bash
+# Change directory to `chatbot/02-forms-pizza-ordering-chatbot first`
+# In the first terminal window 
+rasa run actions
+# In the second terminal window
+rasa run --enable-api -p 5005 --debug --cors "*"
+``` 
 
+3. **Start the UI**. Launch UI from another terminal window.
+```bash
+# Change directory to `UI/widget`
+python -m http.server 8888
+```
+Open the webpage `http://localhost:8888`
 
+> Note: You may come into `block by CORS policy` error when you are using newer version of `Google Chrome`. You can refer to this post to temporarily disable `Block insecure private network requests`: https://stackoverflow.com/questions/69542810/has-been-blocked-by-cors-policy-the-request-client-is-not-a-secure-context-and
 
-### Interactive Voice Response
+### rasa-voice-agent
 
-> Comming Soon in Lab 2
-
+1. Add custom socket connectors, and utilities to run Text-to-speech and Auto-Speech-Recognision into your chatbot.
+> The files are already been added in `components` and `utils`
+2. Download the models
+   1. First, install `deepspeech` and download the model from [Deepspeech's release page](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3)
+    ```bash
+    # Install DeepSpeech
+    pip3 install deepspeech
+    
+    # Create a folder under `chatbot/02-forms-pizza-ordering-chatbot`
+    cd chatbot/02-forms-pizza-ordering-chatbot
+    mkdir stt_model
+    cd stt_model
+    # Download pre-trained English model files
+    curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm
+    curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.scorer
+    ```
+   2. Then install `Coqui's TTS` package. The model will automatically be downloaded when you run the code for the first time.
+    ```bash
+    pip3 install TTS
+    ```
+    
+3. Modify `chatbot/02-forms-pizza-ordering-chatbot/credentials.yml` to enable `socketio` API, i.e.,
+```yml
+utils.voice_connector.VoiceInput:
+  user_message_evt: user_uttered
+  bot_message_evt: bot_uttered
+  session_persistence: false
+```
+4. **Run Rasa chatbot**. Launch action server and rasa server in 2 separate terminals:
+```bash
+# Change directory to `chatbot/02-forms-pizza-ordering-chatbot` first
+# In the first terminal window 
+rasa run actions
+# In the second terminal window
+rasa run --enable-api -p 5005 --debug --cors "*"
+```
+5. **Launch a file server**. Launch a file server from another terminal window.
+```bash
+# Change directory to `UI/widget`
+python -m http.server 8888
+```
+6. **Launch the UI**. Launch the VUE app:
+```bash
+# Change directory to `UI/rasa-voice-interface` first
+# Make sure you are using node@14. 
+# If you are using nvm, run `nvm use 14`
+# Skip this line if you already installed dependance for Vue
+npm install
+# When it finishes
+npm run serve
+```
 
 ## Known Issue
-
-1. If you prefer <code>Rasa 2.x</code>, you can refer to last year's tutorial by Qingyu: [Qingyu's Rasa 2 Tutorial](https://github.com/QingyuGuo/rasa-2.5-tutorial). Qingyu's tutorial is based on Rasa 2.x</code> is **NOT** compatible with <code>Apple Silicon Mac</code>.
-2. For <code>Apple Silicon Mac</code> users. Make sure you have the latest version of operating system, and install `Miniconda3 macOS Apple M1 64-bit` version of `Miniconda` according to the [official guide](https://docs.conda.io/en/latest/miniconda.html#latest-miniconda-installer-links).
-3. For windows users, you may enconter `conda not found` error. To solve this issue, you need to add `conda` to system's PATH enrironment variable. You can consider the second answer under this Stac-Overflow [post](https://stackoverflow.com/questions/44597662/conda-command-is-not-recognized-on-windows-10), i.e., the answer mentioned changes in `conda4.6+`. 
+1. The 3rd UI, `rasa-voice-interface`, is not fully workable with `Apple Silicon Mac`. The UI operates well, but the `deepspeech` and `TTS` module is not compatible with `M1 chips`. You may replace these 2 modules to make a voice agent.
