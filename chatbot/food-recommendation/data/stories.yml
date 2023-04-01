@@ -33,38 +33,38 @@ stories:
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: buy_pizza
-  - action: simple_pizza_form
-  - active_loop: simple_pizza_form
+  - intent: find_food
+  - action: food_recommendation_form
+  - active_loop: food_recommendation_form
   - slot_was_set:
-    - requested_slot: pizza_size
+    - requested_slot: food_category
   - slot_was_set:
-    - pizza_size: large
+    - food_category: cuisine
   - slot_was_set:
-    - pizza_size: large
+    - food_category: cuisine
   - slot_was_set:
-    - requested_slot: pizza_type
+    - requested_slot: food_type
   - slot_was_set:
-    - pizza_type: hawaiii
+    - food_type: japanese
   - slot_was_set:
-    - pizza_type: null
+    - food_type: null
   - slot_was_set:
-    - requested_slot: pizza_type
+    - requested_slot: food_type
   - slot_was_set:
-    - pizza_type: hawai
+    - food_type: japan
   - slot_was_set:
-    - pizza_type: null
+    - food_type: null
   - slot_was_set:
-    - requested_slot: pizza_type
+    - requested_slot: food_type
   - slot_was_set:
-    - pizza_type: hawaii
+    - food_type: japanese
   - slot_was_set:
-    - pizza_type: hawaii
+    - food_type: japanese
   - slot_was_set:
     - requested_slot: null
   - active_loop: null
   - action: utter_submit
-  - action: utter_pizza_slots
+  - action: utter_food_slots
   - intent: goodbye
   - action: utter_goodbye
 
@@ -72,9 +72,9 @@ stories:
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: buy_pizza
-  - action: simple_pizza_form
-  - active_loop: simple_pizza_form
+  - intent: find_food
+  - action: food_recommendation_form
+  - active_loop: food_recommendation_form
   - intent: stop
   - action: utter_ask_continue
   - or: 
@@ -87,11 +87,11 @@ stories:
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: buy_pizza
-  - action: simple_pizza_form
-  - active_loop: simple_pizza_form
+  - intent: find_food
+  - action: food_recommendation_form
+  - active_loop: food_recommendation_form
   - slot_was_set:
-    - requested_slot: pizza_size
+    - requested_slot: food_category
   - intent: stop
   - action: utter_ask_continue
   - intent: stop
@@ -106,17 +106,17 @@ stories:
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: buy_pizza
-  - action: simple_pizza_form
-  - active_loop: simple_pizza_form
+  - intent: find_food
+  - action: food_recommendation_form
+  - active_loop: food_recommendation_form
   - slot_was_set:
-    - requested_slot: pizza_size
+    - requested_slot: food_category
   - slot_was_set:
-    - pizza_size: s
+    - food_category: healthy
   - slot_was_set:
-    - pizza_size: s
+    - food_category: healthy
   - slot_was_set:
-    - requested_slot: pizza_type
+    - requested_slot: food_type
   - intent: stop
   - action: utter_ask_continue
   - intent: affirm

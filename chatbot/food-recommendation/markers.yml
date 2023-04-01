@@ -1,18 +1,25 @@
-marker_start_end_pizza_form:
+marker_start_end_food_form:
   seq:
-    - intent: buy_pizza
+    - intent: find_food
     - action: utter_submit
 
-marker_pizza_size_not_set_immediately:
+marker_food_category_not_set_immediately:
   seq:
-    - intent: buy_pizza
+    - intent: find_food
     - not:
-      - slot_was_set: pizza_size
-    - slot_was_set: pizza_size
+      - slot_was_set: food_category
+    - slot_was_set: food_category
 
-marker_pizza_type_not_set_immediately:
+marker_food_type_not_set_immediately:
   seq:
-    - intent: buy_pizza
+    - intent: find_food
     - not:
-      - slot_was_set: pizza_type
-    - slot_was_set: pizza_type
+      - slot_was_set: food_type
+    - slot_was_set: food_type
+
+marker_food_img_not_set_immediately:
+  seq:
+    - intent: find_food
+    - not:
+      - slot_was_set: food_img
+    - slot_was_set: food_img

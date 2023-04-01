@@ -12,31 +12,31 @@ rules:
   - intent: bot_challenge
   - action: utter_iamabot
 
-- rule: Activate Pizza Form
+- rule: Activate Food Form
   steps:
-  - intent: buy_pizza
-  - action: simple_pizza_form
-  - active_loop: simple_pizza_form
+  - intent: find_food
+  - action: food_recommendation_form
+  - active_loop: food_recommendation_form
 
-- rule: Submit Pizza Form
+- rule: Submit Food Form
   condition:
-  - active_loop: simple_pizza_form
+  - active_loop: food_recommendation_form
   steps:
-  - action: simple_pizza_form
+  - action: food_recommendation_form
   - active_loop: null
   - slot_was_set:
     - requested_slot: null
   - action: utter_submit
-  - action: utter_pizza_slots
+  - action: utter_food_slots
 
-- rule: Interruption in Pizza Form
+- rule: Interruption in Food Form
   condition:
   # Condition that form is active.
-  - active_loop: simple_pizza_form
+  - active_loop: food_recommendation_form
   steps:
   # This unhappy path handles the case of an intent `bot_challenge`.
   - intent: bot_challenge
   - action: utter_iamabot
   # Return to form after handling the `bot_challenge` intent
-  - action: simple_pizza_form
-  - active_loop: simple_pizza_form
+  - action: food_recommendation_form
+  - active_loop: food_recommendation_form

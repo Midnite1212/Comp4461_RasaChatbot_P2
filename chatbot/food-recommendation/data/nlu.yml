@@ -94,31 +94,33 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
-- intent: buy_pizza
+- intent: find_food
   examples: |
-    - i'd like to buy a pizza
-    - i want a pizza
-    - can i buy a pizza
+    - i'd like to buy food
+    - i want food
+    - food
+    - can i buy some food
     - I'm interested in a savory round flattened bread of Italian origin
-    - i want to buy a pizza
+    - i want to buy food
 - intent: inform
   examples: |
-    - i'd like a [large](pizza_size) pizza
-    - i want to order a [xl](pizza_size) [hawai](pizza_type) pizza
-    - [medium](pizza_size) pizza
-    - [xl](pizza_size)
-    - [small](pizza_size)
-    - [s](pizza_size)
-    - [pepperoni](pizza_type)
-    - give me a [mozerella](pizza_type) pizza
-    - [hawaii](pizza_type) pizza
-    - [smol](pizza_size)
-    - [hawaii](pizza_type)
-    - i want a [large](pizza_size) pizza
-    - [mozzarella](pizza_type)
-    - [hawai](pizza_type)
-    - [veggie](pizza_type)
-    - [fungi](pizza_type)
-    - i want a [large](pizza_size) pizza
-    - [vegggie](pizza_type)
-    - [veggie](pizza_type)
+    - i'd like to eat [cuisine](food_category) food
+    - i want to order a [vegan](food_type) [restriction](food_category) food
+    - [calories](food_category) diet
+    - [diet](food_category)
+    - [healthy](food_category)
+    - [cuisine](food_category)
+    - [indian](food_type)
+    - give me a [glutten-free](food_type) food
+    - [balanced](food_type) food
+    - [japanese](food_type)
+    - i want a [healthy](food_category) diet
+    - [korean](food_type)
+    - [western](food_type)
+    - [veggie](food_type)
+    - [glutten-free](food_type)
+    - i want food for [body-building](food_type)
+    - i want food to [lose-weight](food_type)
+    - [body-building](food_type)
+    - [lose-weight](food_type)
+    - [vegetarian](food_category)

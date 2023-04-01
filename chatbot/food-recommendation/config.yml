@@ -19,3 +19,4 @@ policies:
   epochs: 50
   constrain_similarities: true
 - name: RulePolicy
+assistant_id: 20230401-112909-freezing-shot

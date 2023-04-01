@@ -3,7 +3,7 @@ session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true
 intents:
-- buy_pizza
+- find_food
 - greet
 - inform
 - goodbye
@@ -13,28 +13,36 @@ intents:
 - mood_great
 - mood_unhappy
 - bot_challenge
-- request_pizza_form
+- request_food_form
 entities:
-- pizza_size
-- pizza_type
+- food_category
+- food_type
+- food_img
 slots:
-  pizza_size:
+  food_category:
     type: text
     influence_conversation: true
     mappings:
     - type: from_entity
-      entity: pizza_size
-  pizza_type:
+      entity: food_category
+  food_type:
     type: text
     influence_conversation: true
     mappings:
     - type: from_entity
-      entity: pizza_type
+      entity: food_type
+  food_img:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: food_img
 forms:
-  simple_pizza_form:
+  food_recommendation_form:
     required_slots:
-      - pizza_size
-      - pizza_type
+      - food_category
+      - food_type
+      - food_img
 responses:
   utter_greet:
   - text: Hey! How are you?
@@ -50,19 +58,20 @@ responses:
   utter_iamabot:
   - text: I am a bot, powered by Rasa.
   utter_submit:
-  - text: I will now order a pizza for you!
-  utter_pizza_slots:
-  - text: I will order a {pizza_size} {pizza_type} pizza.
+  - text: Finding the food based on your preferences!
+  utter_food_slots:
+  - text: Here is a {food_category} {food_type} food.
+    image: https://i.imgur.com/nGF1K8f.jpg
   utter_ask_continue:
   - text: Are you sure you want to stop the form?
-  utter_ask_pizza_size:
-  - text: What size would you like your pizza to be?
-  utter_ask_pizza_type:
-  - text: What kind of pizza would you like to buy?
+  utter_ask_food_category:
+  - text: Which food category would you like to eat?
+  utter_ask_food_type:
+  - text: What type of {food_category} would you like to eat?
 actions:
 - utter_ask_continue
 - utter_goodbye
 - utter_greet
-- utter_pizza_slots
+- utter_food_slots
 - utter_submit
-- validate_simple_pizza_form
+- validate_food_recommendation_form
