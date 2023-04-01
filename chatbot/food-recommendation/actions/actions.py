@@ -7,7 +7,31 @@ from rasa_sdk.types import DomainDict
 
 ALLOWED_FOOD_CATEGORIES = ["cuisine", "restriction", "calories", "diet", "healthy"]
 ALLOWED_FOOD_TYPES = ["indian", "japanese", "korean", "western", "vegan", "glutten-free", "lose-weight", "body-building", "balanced"]
-FOOD_IMAGES= ["https://imgur.com/xnRuJVr", "https://i.imgur.com/nGF1K8f.jpg"]
+FOOD_IMAGES= [["https://www.tastingtable.com/img/gallery/20-japanese-dishes-you-need-to-try-at-least-once/intro-1664219638.jpg", "https://i.imgur.com/nGF1K8f.jpg"],
+              
+              [],
+              
+              [],
+              
+              [],
+              
+              [],
+              
+              [],
+              
+              [],
+              
+              []]
+
+# 0: "indian", 
+# 1: "japanese", 
+# 2: "korean", 
+# 3: "western", 
+# 4: "vegan", 
+# 5: "glutten-free", 
+# 6: "lose-weight", 
+# 7: "body-building", 
+# 8: "balanced"
 
 class ValidateSimpleFoodForm(FormValidationAction):
     def name(self) -> Text:
@@ -41,4 +65,4 @@ class ValidateSimpleFoodForm(FormValidationAction):
             dispatcher.utter_message(text=f"I don't recognize that food type. We serve {'/'.join(ALLOWED_FOOD_TYPES)}.")
             return {"food_type": None}
         dispatcher.utter_message(text=f"OK! You want to have {slot_value} food.")
-        return {"food_type": slot_value, "food_img": FOOD_IMAGES[0]}
+        return {"food_type": slot_value, "food_img": FOOD_IMAGES[0][0]}

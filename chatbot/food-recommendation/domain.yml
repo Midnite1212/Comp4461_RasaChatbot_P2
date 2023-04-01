@@ -1,42 +1,42 @@
-version: '3.1'
+version: "3.1"
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true
 intents:
-- find_food
-- greet
-- inform
-- goodbye
-- affirm
-- stop
-- deny
-- mood_great
-- mood_unhappy
-- bot_challenge
-- request_food_form
+  - find_food
+  - greet
+  - inform
+  - goodbye
+  - affirm
+  - stop
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - request_food_form
 entities:
-- food_category
-- food_type
-- food_img
+  - food_category
+  - food_type
+  - food_img
 slots:
   food_category:
     type: text
     influence_conversation: true
     mappings:
-    - type: from_entity
-      entity: food_category
+      - type: from_entity
+        entity: food_category
   food_type:
     type: text
     influence_conversation: true
     mappings:
-    - type: from_entity
-      entity: food_type
+      - type: from_entity
+        entity: food_type
   food_img:
     type: text
     influence_conversation: true
     mappings:
-    - type: from_entity
-      entity: food_img
+      - type: from_entity
+        entity: food_img
 forms:
   food_recommendation_form:
     required_slots:
@@ -45,33 +45,33 @@ forms:
       - food_img
 responses:
   utter_greet:
-  - text: Hey! How are you?
+    - text: Hey! How are you?
   utter_cheer_up:
-  - image: https://i.imgur.com/nGF1K8f.jpg
-    text: 'Here is something to cheer you up:'
+    - image: https://i.imgur.com/nGF1K8f.jpg
+      text: "Here is something to cheer you up:"
   utter_did_that_help:
-  - text: Did that help you?
+    - text: Did that help you?
   utter_happy:
-  - text: Great, carry on!
+    - text: Great, carry on!
   utter_goodbye:
-  - text: Bye
+    - text: Bye
   utter_iamabot:
-  - text: I am a bot, powered by Rasa.
+    - text: I am a bot, powered by Rasa.
   utter_submit:
-  - text: Finding the food based on your preferences!
+    - text: Finding the food based on your preferences!
   utter_food_slots:
-  - text: Here is a {food_category} {food_type} food.
-    image: https://i.imgur.com/nGF1K8f.jpg
+    - image: https://gaijinpot.scdn3.secure.raxcdn.com/app/uploads/sites/4/2021/09/oyakodon-japanese-recipe-istock.jpg
+      text: Here is a {food_category} {food_type} food. [Here's the recipe](https://tasty.co/recipe/fried-chicken-and-egg-rice-bowl).
   utter_ask_continue:
-  - text: Are you sure you want to stop the form?
+    - text: Are you sure you want to stop the form?
   utter_ask_food_category:
-  - text: Which food category would you like to eat?
+    - text: Which food category would you like to eat?
   utter_ask_food_type:
-  - text: What type of {food_category} would you like to eat?
+    - text: What type of {food_category} would you like to eat?
 actions:
-- utter_ask_continue
-- utter_goodbye
-- utter_greet
-- utter_food_slots
-- utter_submit
-- validate_food_recommendation_form
+  - utter_ask_continue
+  - utter_goodbye
+  - utter_greet
+  - utter_food_slots
+  - utter_submit
+  - validate_food_recommendation_form
